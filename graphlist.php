@@ -1,7 +1,12 @@
 <?php
- 
-  // Set default timezone
-  date_default_timezone_set('UTC');
+     
+	// used for testing from command line, e.g. php graphlist.php 'delay=-1 hour'
+     if (!isset($_SERVER["HTTP_HOST"])) {
+        parse_str($argv[1], $_REQUEST);
+    }
+
+    // Set timezone
+    date_default_timezone_set('Europe/Paris');
  
   try {
     /**************************************
@@ -17,12 +22,16 @@
     /************************************************
     * Select all data from file db messages table   *
     *************************************************/
-    // 
-    $result = $file_db->query('SELECT * FROM graphlist');
+    $delay =  $_REQUEST['delay'];
 
-     $rows = $result->fetchAll();
+	$query = "SELECT * FROM graphlist WHERE  timestamp > datetime('now','localtime', :delay)";
+    $stmt = $file_db->prepare($query);
+    $stmt->bindParam(':delay', $delay);
+    $stmt->execute();
+    $rows = $stmt->fetchAll();
     
- if ($rows) {
+    if ($rows) {
+    
     $response["items"]   = array();
     
     foreach ($rows as $row) {
@@ -34,7 +43,6 @@
         //fill our response JSON data array
         array_push($response["items"], $item);
     }
-
 
     date_default_timezone_set('Europe/Paris');
     $date = date('Y-m-d H:i:s');

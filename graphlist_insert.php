@@ -35,7 +35,8 @@
     $stmt->execute();
 
     // echoing JSON response
-    echo json_encode("insert OK");
+    $result = 'insert OK';
+    echo json_encode($result);
 
     // Close file db connection
     $file_db = null;
